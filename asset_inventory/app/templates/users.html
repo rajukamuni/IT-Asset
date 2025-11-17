@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Users · IT Asset Inventory{% endblock %}
+{% block title %}Users · SahayaOn{% endblock %}
 {% block content %}
 <section class="grid two-cols">
     <div class="panel">
@@ -24,6 +24,22 @@
             <label>Title
                 <input type="text" name="title">
             </label>
+            <label>Primary Client
+                <select name="client_id">
+                    <option value="">-- Select client (required for Managers/End Users) --</option>
+                    {% for client in clients %}
+                        <option value="{{ client.id }}">{{ client.name }} · {{ client.code }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>Engineer Client Access
+                <select name="assigned_client_ids" multiple size="4">
+                    {% for client in clients %}
+                        <option value="{{ client.id }}">{{ client.name }} · {{ client.code }}</option>
+                    {% endfor %}
+                </select>
+                <span class="muted">Hold Cmd/Ctrl to pick multiple clients. Only used when Role = Engineer.</span>
+            </label>
             <label>Manager
                 <select name="manager_id">
                     <option value="">-- None --</option>
@@ -45,6 +61,7 @@
                 <tr>
                     <th>Name</th>
                     <th>Role</th>
+                    <th>Client</th>
                     <th>Manager</th>
                 </tr>
             </thead>
@@ -53,6 +70,7 @@
                     <tr>
                         <td>{{ user.full_name }}<br><span class="muted">{{ user.email }}</span></td>
                         <td>{{ user.role.replace('_', ' ').title() }}</td>
+                        <td>{{ user.client.name if user.client else '—' }}</td>
                         <td>{{ user.manager.full_name if user.manager else '—' }}</td>
                     </tr>
                 {% endfor %}

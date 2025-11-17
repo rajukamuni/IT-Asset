@@ -30,7 +30,7 @@ def create_app(test_config: dict | None = None) -> Flask:
     db.init_app(app)
     login_manager.init_app(app)
 
-    from .models import User  # noqa: WPS433
+    from .models import Role, User  # noqa: WPS433
 
     @login_manager.user_loader
     def load_user(user_id: str) -> User | None:  # type: ignore[name-defined]
@@ -39,6 +39,10 @@ def create_app(test_config: dict | None = None) -> Flask:
     from .routes import main_bp  # noqa: WPS433
 
     app.register_blueprint(main_bp)
+
+    @app.context_processor
+    def inject_roles():
+        return {"Role": Role}
 
     with app.app_context():
         db.create_all()

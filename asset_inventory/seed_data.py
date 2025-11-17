@@ -3,7 +3,27 @@
 from datetime import datetime
 
 from app import create_app, db
-from app.models import Asset, Assignment, Role, User
+from app.models import Asset, Assignment, Client, Role, User
+
+
+STARTER_CLIENTS = [
+    {
+        "name": "KriaSol HQ",
+        "code": "KRIASOL",
+        "industry": "Technology Services",
+        "headquarters": "Bengaluru, IN",
+        "contact_email": "ops@kriasol.com",
+        "contact_phone": "+91 80 5555 5555",
+    },
+    {
+        "name": "Northwind Foods",
+        "code": "NWFDS",
+        "industry": "Food & Beverage",
+        "headquarters": "Austin, TX",
+        "contact_email": "it@northwindfoods.com",
+        "contact_phone": "+1 512 555 2024",
+    },
+]
 
 
 STARTER_USERS = [
@@ -30,6 +50,7 @@ STARTER_USERS = [
         "department": "Product",
         "title": "Product Manager",
         "password": "manager123",
+        "client_code": "KRIASOL",
     },
     {
         "full_name": "Noah Kim",
@@ -38,6 +59,7 @@ STARTER_USERS = [
         "department": "Product",
         "title": "Product Analyst",
         "password": "user123",
+        "client_code": "KRIASOL",
     },
 ]
 
@@ -50,6 +72,7 @@ STARTER_ASSETS = [
         "manufacturer": "Dell",
         "total_quantity": 5,
         "available_quantity": 5,
+        "client_code": "KRIASOL",
     },
     {
         "name": "MacBook Pro 14",
@@ -59,6 +82,7 @@ STARTER_ASSETS = [
         "manufacturer": "Apple",
         "total_quantity": 3,
         "available_quantity": 3,
+        "client_code": "KRIASOL",
     },
     {
         "name": "Microsoft 365 E3",
@@ -68,6 +92,7 @@ STARTER_ASSETS = [
         "manufacturer": "Microsoft",
         "total_quantity": 120,
         "available_quantity": 120,
+        "client_code": "NWFDS",
     },
     {
         "name": "Slack Enterprise Grid",
@@ -77,6 +102,7 @@ STARTER_ASSETS = [
         "manufacturer": "Slack",
         "total_quantity": 50,
         "available_quantity": 50,
+        "client_code": "KRIASOL",
     },
 ]
 
@@ -90,6 +116,15 @@ def seed() -> None:
 
         db.create_all()
 
+        clients = []
+        for payload in STARTER_CLIENTS:
+            client = Client(**payload)
+            clients.append(client)
+            db.session.add(client)
+
+        db.session.flush()
+        client_map = {client.code: client for client in clients}
+
         users = []
         for payload in STARTER_USERS:
             user = User(
@@ -98,6 +133,7 @@ def seed() -> None:
                 role=payload["role"],
                 department=payload["department"],
                 title=payload["title"],
+                client=client_map.get(payload.get("client_code")) if payload.get("client_code") else None,
             )
             user.set_password(payload["password"])
             users.append(user)
@@ -110,10 +146,21 @@ def seed() -> None:
         engineer = next(u for u in users if u.role == Role.ENGINEER.value)
 
         end_user.manager_id = manager.id
+        engineer.supported_clients = clients
 
         assets = []
         for payload in STARTER_ASSETS:
-            asset = Asset(**payload)
+            client = client_map[payload["client_code"]]
+            asset = Asset(
+                name=payload["name"],
+                asset_tag=payload["asset_tag"],
+                asset_type=payload["asset_type"],
+                category=payload["category"],
+                manufacturer=payload["manufacturer"],
+                total_quantity=payload["total_quantity"],
+                available_quantity=payload["available_quantity"],
+                client=client,
+            )
             assets.append(asset)
             db.session.add(asset)
 
@@ -132,6 +179,7 @@ def seed() -> None:
                 quantity=1,
                 notes="Primary device",
                 assigned_on=datetime.utcnow(),
+                client=end_user.client,
             )
         )
         db.session.add(
@@ -141,6 +189,7 @@ def seed() -> None:
                 quantity=3,
                 notes="Team collaboration",
                 assigned_on=datetime.utcnow(),
+                client=end_user.client,
             )
         )
 

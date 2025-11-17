@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Clients · SahayaOn{% endblock %}
+{% block content %}
+<section class="page-header">
+    <div>
+        <h1>Clients</h1>
+        <p class="muted">{{ clients|length }} active relationship{{ 's' if clients|length != 1 else '' }} under SahayaOn.</p>
+    </div>
+    {% if current_user.is_admin %}
+        <a href="#create-client" class="primary">Add client</a>
+    {% endif %}
+</section>
+
+{% if current_user.is_admin %}
+<section class="panel" id="create-client">
+    <h2>Register a Client</h2>
+    <form method="post" class="form-grid two-cols">
+        <label>Client Name
+            <input type="text" name="name" required>
+        </label>
+        <label>Code
+            <input type="text" name="code" required placeholder="e.g. KRIASOL" maxlength="12">
+        </label>
+        <label>Industry
+            <input type="text" name="industry">
+        </label>
+        <label>Headquarters
+            <input type="text" name="headquarters">
+        </label>
+        <label>Contact Email
+            <input type="email" name="contact_email">
+        </label>
+        <label>Contact Phone
+            <input type="text" name="contact_phone">
+        </label>
+        <label class="full">Notes
+            <textarea name="notes" rows="3"></textarea>
+        </label>
+        <button type="submit" class="primary">Create</button>
+    </form>
+</section>
+{% endif %}
+
+{% if clients %}
+<section class="grid two-cols">
+    {% for client in clients %}
+        {% set managers = client.members.filter_by(role=Role.MANAGER.value).all() %}
+        {% set engineers = client.engineers.all() if client.engineers is defined else [] %}
+        {% set engineer_ids = engineers | map(attribute='id') | list %}
+        <article class="panel">
+            <header class="page-header">
+                <div>
+                    <h2>{{ client.name }}</h2>
+                    <p class="muted">{{ client.industry or 'Industry TBD' }} · HQ {{ client.headquarters or 'TBD' }}</p>
+                </div>
+                <span class="chip">{{ client.code }}</span>
+            </header>
+            <p><strong>{{ client.assets|length }}</strong> assets · <strong>{{ client.members.filter_by(role=Role.END_USER.value).count() }}</strong> end users</p>
+            <p class="muted">Primary contact: {{ client.contact_email or '—' }} {{ '· ' ~ client.contact_phone if client.contact_phone }}</p>
+            <h3>Managers</h3>
+            {% if managers %}
+                <ul>
+                    {% for manager in managers %}
+                        <li>{{ manager.full_name }} ({{ manager.email }})</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="muted">No managers assigned yet.</p>
+            {% endif %}
+            <h3>Engineers</h3>
+            {% if current_user.is_admin %}
+                <form method="post" action="{{ url_for('main.update_client_engineers', client_id=client.id) }}" class="form-grid">
+                    <label>Support engineers
+                        <select name="engineer_ids" multiple size="4">
+                            {% for engineer in engineer_directory %}
+                                <option value="{{ engineer.id }}" {% if engineer.id in engineer_ids %}selected{% endif %}>{{ engineer.full_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <button type="submit" class="primary">Update access</button>
+                </form>
+            {% else %}
+                {% if engineers %}
+                    <ul>
+                        {% for engineer in engineers %}
+                            <li>{{ engineer.full_name }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="muted">No engineers assigned yet.</p>
+                {% endif %}
+            {% endif %}
+        </article>
+    {% endfor %}
+</section>
+{% else %}
+<p class="muted">No clients available for your role yet.</p>
+{% endif %}
+{% endblock %}

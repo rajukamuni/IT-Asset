@@ -1,9 +1,10 @@
 {% extends "base.html" %}
-{% block title %}Sign in · IT Asset Inventory{% endblock %}
+{% block title %}Sign in · SahayaOn{% endblock %}
 {% block content %}
 <section class="panel panel-centered">
+    <img src="{{ url_for('static', filename='img/sahayaon-logo.svg') }}" alt="SahayaOn" width="220">
     <h1>Welcome back</h1>
-    <p class="muted">Sign in to manage your team's hardware and software footprint.</p>
+    <p class="muted">Manage every client's hardware, software, and people in one SahayaOn workspace.</p>
     <form method="post" class="form-grid">
         <label>Email
             <input type="email" name="email" required autocomplete="username">

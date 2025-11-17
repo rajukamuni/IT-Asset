@@ -1,20 +1,22 @@
 {% extends "base.html" %}
-{% block title %}Assets · IT Asset Inventory{% endblock %}
+{% block title %}Inventory · SahayaOn{% endblock %}
 {% block content %}
 <section class="page-header">
     <div>
         <h1>Assets</h1>
-        <p class="muted">All tracked hardware and software with stock levels.</p>
+        <p class="muted">Viewing {{ assets|length }} item{{ 's' if assets|length != 1 else '' }} across {{ clients|length }} client{{ 's' if clients|length != 1 else '' }}.</p>
     </div>
     {% if current_user.role in [Role.ADMIN.value, Role.ENGINEER.value] %}
         <a href="{{ url_for('main.create_asset') }}" class="primary">Add asset</a>
     {% endif %}
 </section>
 
+{% if assets %}
 <table>
     <thead>
         <tr>
             <th>Name</th>
+            <th>Client</th>
             <th>Type</th>
             <th>Tag</th>
             <th>Stock</th>
@@ -28,6 +30,7 @@
         {% for asset in assets %}
             <tr>
                 <td>{{ asset.name }}</td>
+                <td>{{ asset.client.name }}</td>
                 <td>{{ asset.asset_type.title() }}</td>
                 <td>{{ asset.asset_tag }}</td>
                 <td>{{ asset.available_quantity }}/{{ asset.total_quantity }}</td>
@@ -42,4 +45,7 @@
         {% endfor %}
     </tbody>
 </table>
+{% else %}
+<p class="muted">No assets available for your clients yet.</p>
+{% endif %}
 {% endblock %}

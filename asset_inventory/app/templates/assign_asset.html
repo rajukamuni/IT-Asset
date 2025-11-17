@@ -1,9 +1,9 @@
 {% extends "base.html" %}
-{% block title %}Assign {{ asset.name }} · IT Asset Inventory{% endblock %}
+{% block title %}Assign {{ asset.name }} · SahayaOn{% endblock %}
 {% block content %}
 <section class="panel">
     <h1>Assign {{ asset.name }}</h1>
-    <p class="muted">{{ asset.available_quantity }} of {{ asset.total_quantity }} available</p>
+    <p class="muted">{{ asset.client.name }} · {{ asset.available_quantity }} of {{ asset.total_quantity }} available</p>
     <form method="post" class="form-grid">
         <label>User
             <select name="user_id" required>
