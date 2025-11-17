@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if asset else 'New' }} Asset · IT Asset Inventory{% endblock %}
+{% block content %}
+<section class="panel">
+    <h1>{{ 'Edit' if asset else 'Add' }} Asset</h1>
+    <form method="post" class="form-grid two-cols">
+        <label>Name
+            <input type="text" name="name" value="{{ asset.name if asset else '' }}" required>
+        </label>
+        <label>Asset Tag / License Key
+            <input type="text" name="asset_tag" value="{{ asset.asset_tag if asset else '' }}" required>
+        </label>
+        <label>Type
+            <select name="asset_type">
+                <option value="hardware" {% if asset and asset.asset_type == 'hardware' %}selected{% endif %}>Hardware</option>
+                <option value="software" {% if asset and asset.asset_type == 'software' %}selected{% endif %}>Software</option>
+            </select>
+        </label>
+        <label>Category
+            <input type="text" name="category" value="{{ asset.category if asset else '' }}">
+        </label>
+        <label>Manufacturer / Vendor
+            <input type="text" name="manufacturer" value="{{ asset.manufacturer if asset else '' }}">
+        </label>
+        <label>Status
+            <input type="text" name="status" value="{{ asset.status if asset else 'available' }}">
+        </label>
+        <label>Total Quantity
+            <input type="number" name="total_quantity" min="1" value="{{ asset.total_quantity if asset else 1 }}" required>
+        </label>
+        <label>Available Quantity
+            <input type="number" name="available_quantity" min="0" value="{{ asset.available_quantity if asset else 1 }}" required>
+        </label>
+        <label class="full">Notes
+            <textarea name="notes" rows="3">{{ asset.notes if asset else '' }}</textarea>
+        </label>
+        <div class="full">
+            <button type="submit" class="primary">Save</button>
+            <a href="{{ url_for('main.list_assets') }}" class="ghost">Cancel</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

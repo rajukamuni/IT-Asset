@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · IT Asset Inventory{% endblock %}
+{% block content %}
+<section class="grid two-cols">
+    <div>
+        <h2>Your Hardware</h2>
+        {% if hardware_assignments %}
+            <ul class="card-list">
+                {% for assignment in hardware_assignments %}
+                    <li>
+                        <div class="card-title">{{ assignment.asset.name }}</div>
+                        <p>Tag: {{ assignment.asset.asset_tag }} · Qty: {{ assignment.quantity }}</p>
+                        <p class="muted">Assigned {{ assignment.assigned_on.strftime('%b %d, %Y') }}</p>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="muted">No hardware currently assigned.</p>
+        {% endif %}
+    </div>
+    <div>
+        <h2>Your Software</h2>
+        {% if software_assignments %}
+            <ul class="card-list">
+                {% for assignment in software_assignments %}
+                    <li>
+                        <div class="card-title">{{ assignment.asset.name }}</div>
+                        <p>License: {{ assignment.asset.asset_tag }} · Seats: {{ assignment.quantity }}</p>
+                        <p class="muted">Assigned {{ assignment.assigned_on.strftime('%b %d, %Y') }}</p>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="muted">No software allocations yet.</p>
+        {% endif %}
+    </div>
+</section>
+
+{% if team_members %}
+<section class="panel">
+    <h2>Your Team</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Assignments</th></tr>
+        </thead>
+        <tbody>
+            {% for member in team_members %}
+                <tr>
+                    <td>{{ member.full_name }}</td>
+                    <td>{{ member.role.replace('_', ' ').title() }}</td>
+                    <td>
+                        {% set assignments = team_assignment_map.get(member.id, []) %}
+                        {% if assignments %}
+                            <ul>
+                                {% for assignment in assignments %}
+                                    <li>{{ assignment.asset.name }} ({{ assignment.asset.asset_type }})</li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <span class="muted">No active assets</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endif %}
+
+{% if metrics %}
+<section class="grid three-cols">
+    <div class="stat">
+        <div class="stat-number">{{ metrics.asset_total }}</div>
+        <div class="stat-label">Total Assets</div>
+    </div>
+    <div class="stat">
+        <div class="stat-number">{{ metrics.hardware_count }}</div>
+        <div class="stat-label">Hardware Items</div>
+    </div>
+    <div class="stat">
+        <div class="stat-number">{{ metrics.software_count }}</div>
+        <div class="stat-label">Software Titles</div>
+    </div>
+</section>
+<section class="grid two-cols">
+    <div class="panel">
+        <h3>Low Stock Alerts</h3>
+        {% if low_stock_assets %}
+            <ul>
+                {% for asset in low_stock_assets %}
+                    <li>{{ asset.name }} · {{ asset.available_quantity }} / {{ asset.total_quantity }} remaining</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="muted">All assets healthy.</p>
+        {% endif %}
+    </div>
+    <div class="panel">
+        <h3>Recent Assignments</h3>
+        {% if recent_assignments %}
+            <ul>
+                {% for assignment in recent_assignments %}
+                    <li>
+                        {{ assignment.asset.name }} → {{ assignment.user.full_name }}
+                        <span class="muted">on {{ assignment.assigned_on.strftime('%b %d, %Y') }}</span>
+                        {% if current_user.role in [Role.ADMIN.value, Role.ENGINEER.value] and assignment.status == 'active' %}
+                            <form method="post" action="{{ url_for('main.return_assignment', assignment_id=assignment.id) }}" class="inline-form">
+                                <button type="submit">Mark Returned</button>
+                            </form>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="muted">No recent movements.</p>
+        {% endif %}
+    </div>
+</section>
+{% endif %}
+{% endblock %}

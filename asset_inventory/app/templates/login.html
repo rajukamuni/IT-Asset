@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Sign in · IT Asset Inventory{% endblock %}
+{% block content %}
+<section class="panel panel-centered">
+    <h1>Welcome back</h1>
+    <p class="muted">Sign in to manage your team's hardware and software footprint.</p>
+    <form method="post" class="form-grid">
+        <label>Email
+            <input type="email" name="email" required autocomplete="username">
+        </label>
+        <label>Password
+            <input type="password" name="password" required autocomplete="current-password">
+        </label>
+        <button type="submit" class="primary">Sign in</button>
+    </form>
+</section>
+{% endblock %}
