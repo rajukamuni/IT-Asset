@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Assign {{ asset.name }} · SahayaOn{% endblock %}
+{% block content %}
+<section class="panel">
+    <h1>Assign {{ asset.name }}</h1>
+    <p class="muted">{{ asset.client.name }} · {{ asset.available_quantity }} of {{ asset.total_quantity }} available</p>
+    <form method="post" class="form-grid">
+        <label>User
+            <select name="user_id" required>
+                {% for user in users %}
+                    <option value="{{ user.id }}">{{ user.full_name }} · {{ user.role.replace('_',' ').title() }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>Quantity
+            <input type="number" name="quantity" min="1" max="{{ asset.available_quantity }}" value="1">
+        </label>
+        <label class="full">Notes
+            <textarea name="notes" rows="3"></textarea>
+        </label>
+        <button type="submit" class="primary">Assign</button>
+        <a href="{{ url_for('main.list_assets') }}" class="ghost">Cancel</a>
+    </form>
+</section>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Inventory · SahayaOn{% endblock %}
+{% block content %}
+<section class="page-header">
+    <div>
+        <h1>Assets</h1>
+        <p class="muted">Viewing {{ assets|length }} item{{ 's' if assets|length != 1 else '' }} across {{ clients|length }} client{{ 's' if clients|length != 1 else '' }}.</p>
+    </div>
+    {% if current_user.role in [Role.ADMIN.value, Role.ENGINEER.value] %}
+        <a href="{{ url_for('main.create_asset') }}" class="primary">Add asset</a>
+    {% endif %}
+</section>
+
+{% if assets %}
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Client</th>
+            <th>Type</th>
+            <th>Tag</th>
+            <th>Stock</th>
+            <th>Status</th>
+            {% if current_user.role in [Role.ADMIN.value, Role.ENGINEER.value] %}
+                <th>Actions</th>
+            {% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for asset in assets %}
+            <tr>
+                <td>{{ asset.name }}</td>
+                <td>{{ asset.client.name }}</td>
+                <td>{{ asset.asset_type.title() }}</td>
+                <td>{{ asset.asset_tag }}</td>
+                <td>{{ asset.available_quantity }}/{{ asset.total_quantity }}</td>
+                <td>{{ asset.status.title() }}</td>
+                {% if current_user.role in [Role.ADMIN.value, Role.ENGINEER.value] %}
+                    <td class="actions">
+                        <a href="{{ url_for('main.edit_asset', asset_id=asset.id) }}">Edit</a>
+                        <a href="{{ url_for('main.assign_asset', asset_id=asset.id) }}">Assign</a>
+                    </td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="muted">No assets available for your clients yet.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}SahayaOn · IT Asset Inventory{% endblock %}</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <header class="app-header">
+        <div class="brand">
+            <img src="{{ url_for('static', filename='img/sahayaon-logo.svg') }}" alt="SahayaOn · Powered by KriaSol">
+        </div>
+        <nav class="main-nav">
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+                {% if not current_user.is_end_user %}
+                    <a href="{{ url_for('main.clients') }}">Clients</a>
+                {% endif %}
+                <a href="{{ url_for('main.list_assets') }}">Inventory</a>
+                {% if current_user.role in [Role.ADMIN.value] %}
+                    <a href="{{ url_for('main.manage_users') }}">Users</a>
+                {% endif %}
+                <span class="user-pill">{{ current_user.full_name }} · {{ current_user.role.replace('_', ' ').title() }}</span>
+                <form action="{{ url_for('main.logout') }}" method="post" class="logout-form">
+                    <button type="submit">Logout</button>
+                </form>
+            {% else %}
+                <a href="{{ url_for('main.login') }}">Login</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <main class="content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-container">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="app-footer">
+        <small>Built for modern IT teams · {{ config['SQLALCHEMY_DATABASE_URI'].split(':')[0].upper() }} backend</small>
+    </footer>
+</body>
+</html>

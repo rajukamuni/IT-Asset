@@ -1,0 +1,10 @@
+<svg width="1266" height="347" viewBox="0 0 1266 347" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">SahayaOn Logo</title>
+  <desc id="desc">Wordmark for SahayaOn powered by KriaSol</desc>
+  <style>
+    text { font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; }
+  </style>
+  <text x="0" y="220" font-size="210" font-weight="600" fill="#0C5F56">Sahaya</text>
+  <text x="740" y="220" font-size="210" font-weight="600" fill="#EB5A00">On</text>
+  <text x="760" y="310" font-size="70" fill="#0C0E10">Powered by KriaSol</text>
+</svg>
